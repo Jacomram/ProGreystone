@@ -5,24 +5,22 @@ services:
     build: .
     ports:
       - "3000:3000"
+    depends_on:
+      - mongo
+      - mysql
     environment:
       MONGO_URI: mongodb://mongo:27017/testdb
       DB_HOST: mysql
       DB_USER: root
       DB_PASSWORD: rootpassword
       DB_NAME: mydb
-      SMTP_HOST: maildev
-      SMTP_PORT: 1025
-    depends_on:
-      - mongo
-      - mysql
-      - maildev
     volumes:
       - .:/app
       - /app/node_modules
 
   mongo:
     image: mongo:7.0
+    container_name: mongo_db
     ports:
       - "27017:27017"
     volumes:
@@ -30,6 +28,8 @@ services:
 
   mysql:
     image: mysql:8.0
+    container_name: mysql_db
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: mydb
@@ -40,12 +40,12 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
-  maildev:
-    image: maildev/maildev
-    container_name: maildev
+  adminer:
+    image: adminer
+    container_name: adminer_ui
+    restart: always
     ports:
-      - "1080:1080"   # Web UI → http://localhost:1080
-      - "1025:1025"   # SMTP server
+      - "8080:8080"
 
 volumes:
   mongo-data:
